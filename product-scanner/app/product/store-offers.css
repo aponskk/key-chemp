@@ -1,0 +1,255 @@
+
+.store-offers {
+  margin-top: 28px;
+  padding: 22px;
+  border: 1px solid var(--ui-border, #e5eae5);
+  border-radius: 22px;
+  background: var(--ui-surface, #fff);
+  color: var(--ui-text, #17231c);
+  box-shadow: var(--ui-shadow, 0 8px 28px rgba(24, 47, 32, 0.05));
+}
+
+.store-offers-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.store-offers-eyebrow {
+  margin: 0 0 6px;
+  color: var(--ui-green, #24784b);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.store-offers-heading h2 {
+  margin: 0;
+  font-size: clamp(20px, 3vw, 25px);
+  letter-spacing: -0.03em;
+}
+
+.store-toggle {
+  flex-shrink: 0;
+  padding: 10px 13px;
+  border: 1px solid var(--ui-border, #e5eae5);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--ui-green, #24784b);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.store-toggle:hover {
+  background: #f1f8f2;
+}
+
+.store-offers-list {
+  display: grid;
+  gap: 11px;
+}
+
+.store-offer-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid #e5eae5;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.store-offer-cheapest {
+  border-color: #9bd1aa;
+  background: #eff9f1;
+}
+
+.store-offer-promo {
+  border-color: #efd46c;
+  background: #fff8dc;
+}
+
+.store-offer-cheapest.store-offer-promo {
+  border-color: #9bd1aa;
+  background: #eff9f1;
+}
+
+.store-offer-unavailable {
+  opacity: 0.65;
+}
+
+.store-offer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.store-offer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.store-tag {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.store-tag-cheapest {
+  background: #ccebd4;
+  color: #176137;
+}
+
+.store-tag-promo {
+  background: #f7df83;
+  color: #654c00;
+}
+
+.store-offer-info h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.store-offer-city {
+  margin: 4px 0 0;
+  color: var(--ui-muted, #778279);
+  font-size: 12px;
+}
+
+.store-offer-address {
+  margin: 10px 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.store-offer-address span {
+  color: var(--ui-muted, #778279);
+}
+
+.store-stock {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #217343;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.store-stock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.store-stock-none {
+  color: #a14b3d;
+}
+
+.store-offer-price-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.store-offer-price {
+  font-size: clamp(20px, 3vw, 25px);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.store-offer-cheapest .store-offer-price {
+  color: #176f3c;
+}
+
+.store-offer-old-price {
+  color: #778279;
+  font-size: 11px;
+  text-align: right;
+}
+
+.store-offers-message,
+.store-offers-empty {
+  padding: 20px;
+  border-radius: 14px;
+  background: #f7f9f7;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.store-offers-error {
+  color: #a12626;
+}
+
+.store-offers-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  text-align: center;
+}
+
+.store-empty-icon {
+  color: var(--ui-green, #24784b);
+  font-size: 34px;
+}
+
+.store-offers-empty p {
+  max-width: 440px;
+  margin: 0;
+  color: var(--ui-muted, #778279);
+}
+
+.store-offers-disclaimer {
+  margin: 14px 0 0;
+  color: var(--ui-muted, #778279);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .store-offers {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 17px;
+  }
+
+  .store-offers-heading {
+    align-items: flex-start;
+  }
+
+  .store-toggle {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+
+  .store-offer-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .store-offer-price-area {
+    align-items: flex-start;
+    padding-top: 12px;
+    border-top: 1px solid rgba(80, 100, 80, 0.15);
+  }
+
+  .store-offer-old-price {
+    text-align: left;
+  }
+}
