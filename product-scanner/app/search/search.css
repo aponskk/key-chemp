@@ -416,3 +416,185 @@
     transform: none;
   }
 }
+
+/* Search results: product details and delivery */
+.offer-product-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: #c8d8cc;
+  text-underline-offset: 3px;
+}
+
+.offer-product-link:hover {
+  color: var(--search-green);
+  text-decoration-color: currentColor;
+}
+
+.offer-product-link span {
+  color: var(--search-green);
+  font-size: 13px;
+}
+
+.offer-delivery-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px 8px;
+  margin-top: 11px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.offer-delivery-summary strong {
+  color: var(--search-text);
+}
+
+.offer-delivery-unknown {
+  color: var(--search-muted);
+}
+
+.offer-detail-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(16, 26, 19, 0.52);
+}
+
+.offer-detail-dialog {
+  position: relative;
+  width: min(100%, 520px);
+  max-height: min(86dvh, 760px);
+  overflow-y: auto;
+  padding: 28px;
+  border: 1px solid var(--search-border);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 22px 80px rgba(0, 0, 0, 0.22);
+}
+
+.offer-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f4f1;
+  color: var(--search-text);
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.offer-detail-dialog h2 {
+  margin: 4px 36px 8px 0;
+  font-size: clamp(22px, 4vw, 28px);
+  line-height: 1.25;
+}
+
+.offer-detail-muted {
+  margin: 6px 0;
+  color: var(--search-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.offer-detail-price {
+  margin: 18px 0 4px;
+  color: var(--search-green);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.offer-detail-list {
+  display: grid;
+  gap: 0;
+  margin: 20px 0;
+  border-top: 1px solid var(--search-border);
+}
+
+.offer-detail-list div {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--search-border);
+}
+
+.offer-detail-list dt {
+  color: var(--search-muted);
+  font-size: 13px;
+}
+
+.offer-detail-list dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.offer-detail-delivery {
+  padding: 16px;
+  border-radius: 14px;
+  background: #f4f8f4;
+}
+
+.offer-detail-delivery h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.offer-detail-delivery p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.offer-detail-product-link {
+  display: block;
+  margin-top: 16px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: var(--search-green);
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.offer-detail-footnote {
+  margin: 14px 0 0;
+  color: var(--search-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .offer-detail-dialog {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .offer-detail-list div {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 8px;
+  }
+}

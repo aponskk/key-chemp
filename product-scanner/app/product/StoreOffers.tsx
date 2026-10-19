@@ -309,16 +309,9 @@ export default function StoreOffers({
     requestLocation();
   }
 
-  const deliveryRows = useMemo(() => {
-    const fromDatabase = shownOffers
-      .filter((offer) => offer.delivery_service && Number.isFinite(Number(offer.delivery_fee_rub)))
-      .map((offer) => ({ service: offer.delivery_service as string, fee: Number(offer.delivery_fee_rub), productPrice: Number(offer.current_price_rub), total: Number(offer.current_price_rub) + Number(offer.delivery_fee_rub), minimum: offer.delivery_minimum_rub ? Number(offer.delivery_minimum_rub) : null, source: "База приложения" }));
-    if (fromDatabase.length) return fromDatabase;
-    return [
-      { service: "Купер", fee: 100, productPrice: 100, total: 200, minimum: null, source: "Пример механики" },
-      { service: "Самокат", fee: 110, productPrice: 100, total: 210, minimum: null, source: "Пример механики" },
-    ];
-  }, [shownOffers]);
+  const deliveryRows = useMemo(() => shownOffers
+    .filter((offer) => offer.delivery_service?.trim() && offer.delivery_fee_rub?.trim() !== "" && Number.isFinite(Number(offer.delivery_fee_rub)))
+    .map((offer) => ({ service: offer.delivery_service as string, fee: Number(offer.delivery_fee_rub), productPrice: Number(offer.current_price_rub), total: Number(offer.current_price_rub) + Number(offer.delivery_fee_rub), minimum: offer.delivery_minimum_rub?.trim() && Number.isFinite(Number(offer.delivery_minimum_rub)) ? Number(offer.delivery_minimum_rub) : null, source: "База приложения" })), [shownOffers]);
 
   function formatPrice(value: string) {
     return `${Number(value).toLocaleString("ru-RU", {
@@ -469,21 +462,24 @@ export default function StoreOffers({
         <div>
           <p className="store-offers-eyebrow">ДОСТАВКА</p>
           <h3>Сколько стоит привезти?</h3>
-          <p className="delivery-note">Стоимость доставки показывается отдельно от цены товара. Если в CSV заполнены delivery_service и delivery_fee_rub, используются данные базы; иначе показан пример работы интерфейса.</p>
+          <p className="delivery-note">Показываем тарифы, указанные в базе приложения. Они могут быть неактуальны, если база давно не обновлялась.</p>
         </div>
-        <div className="delivery-options">
-          {deliveryRows.map((row, index) => (
-            <div className="delivery-option" key={`${row.service}-${index}`}>
-              <span>{row.service}</span>
-              <strong>Доставка: {formatPrice(String(row.fee))}</strong>
-              <small>Товар: {formatPrice(String(row.productPrice))}</small>
-              <small>Итого: {formatPrice(String(row.total))}</small>
-              {row.minimum !== null && <small>Минимальный заказ: {formatPrice(String(row.minimum))}</small>}
-              <small>{row.source}</small>
-            </div>
-          ))}
-        </div>
-        <p className="store-offers-disclaimer">Примерные суммы показаны только для демонстрации расчёта. Они не являются актуальными ценами или тарифами Купера и Самоката.</p>
+        {deliveryRows.length ? (
+          <div className="delivery-options">
+            {deliveryRows.map((row, index) => (
+              <div className="delivery-option" key={`${row.service}-${index}`}>
+                <span>{row.service}</span>
+                <strong>Доставка: {formatPrice(String(row.fee))}</strong>
+                <small>Товар: {formatPrice(String(row.productPrice))}</small>
+                <small>Итого: {formatPrice(String(row.total))}</small>
+                {row.minimum !== null && <small>Минимальный заказ: {formatPrice(String(row.minimum))}</small>}
+                <small>{row.source}</small>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="delivery-note">Информация о доставке для этого товара пока не указана в базе.</p>
+        )}
       </section>
     </section>
   );
