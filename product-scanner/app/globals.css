@@ -2641,15 +2641,19 @@ button:disabled {
 }
 
 /* Camera scanner inside the product comparison section */
+
+/* Camera scanner inside the product comparison section */
 .compare-camera-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
 }
+
 .compare-camera-controls .secondary-button {
   min-height: 44px;
 }
+
 .compare-camera-box {
   width: 100%;
   max-width: 520px;
@@ -2659,17 +2663,87 @@ button:disabled {
   border-radius: 12px;
   background: #111;
 }
+
 .compare-camera-video {
   display: block;
   width: 100%;
   max-height: 320px;
   object-fit: cover;
 }
+
 @media (max-width: 560px) {
   .compare-form {
     grid-template-columns: minmax(0, 1fr);
   }
+
   .compare-form .primary-button {
     width: 100%;
   }
+}
+
+.barcode-icon {
+  display: block;
+  object-fit: contain;
+}
+
+/* Логотип со штрихкодом на странице сканирования */
+.page-header .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.page-header .logo .barcode-icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* Исправление прокрутки и отступа под нижнюю навигацию */
+html {
+  overflow-y: scroll !important;
+}
+
+body {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: visible !important;
+  overflow-x: clip !important;
+}
+
+.app-content {
+  display: flow-root;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding-bottom: 80px !important;
+}
+
+.home-page {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding-bottom: 80px !important;
+}
+
+/* Нижний отступ для десктопной версии */
+@media (min-width: 561px) {
+  .app-content {
+    padding-bottom: 80px !important;
+  }
+
+  body .app-content main.home-page {
+    padding-bottom: 0 !important;
+  }
+
+@media (min-width: 561px) {
+  .app-content {
+    padding-bottom: 105px !important;
+  }
+}
+
 }

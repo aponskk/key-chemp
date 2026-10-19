@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BarcodeIcon from "../components/BarcodeIcon";
 import Link from "next/link";
 import {
   clearProductHistory,
@@ -45,7 +46,7 @@ export default function HistoryPage() {
       <header className="history-header">
         <div>
           <h1>История</h1>
-          <p>Товары, которые ты сканировал</p>
+          <p>Недавно просмотренные продукты</p>
         </div>
 
         {history.length > 0 && (
@@ -63,11 +64,12 @@ export default function HistoryPage() {
         <p className="history-message">Загружаем историю...</p>
       ) : history.length === 0 ? (
         <section className="history-empty">
-          <div className="history-empty-icon">▦</div>
+          <div className="history-empty-icon">
+  <BarcodeIcon size={40} />
+</div>
           <h2>История пока пуста</h2>
           <p>
-            Отсканируй товар, и он появится здесь вместе с информацией
-            о составе и пищевой ценности.
+            После сканирования здесь появятся просмотренные продукты.
           </p>
           <Link className="button" href="/scan">
             Открыть сканер

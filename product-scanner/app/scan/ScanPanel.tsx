@@ -66,7 +66,7 @@ export default function ScanPanel() {
 
           if (!normalizedCode) {
             setError(
-              "Код распознан, но не похож на поддерживаемый штрихкод товара. Попробуй обычный штрихкод на упаковке или введи его вручную."
+              "Этот код не подходит для поиска продукта. Попробуй отсканировать штрихкод с упаковки или введи его вручную."
             );
             setCameraActive(false);
             setStatus("");
@@ -87,7 +87,7 @@ export default function ScanPanel() {
       }
 
       controlsRef.current = controls;
-      setStatus("Наведите камеру на штрихкод или QR-код товара");
+      setStatus("Наведи камеру на штрихкод продукта");
     } catch (err) {
       if (!mountedRef.current) return;
 
@@ -102,7 +102,7 @@ export default function ScanPanel() {
         setError("Камера не найдена на этом устройстве.");
       } else {
         setError(
-          "Не удалось запустить камеру. Проверь разрешения браузера и попробуй ещё раз."
+          "Не удалось включить камеру. Проверь разрешение на доступ к камере и попробуй ещё раз."
         );
       }
     }
@@ -153,7 +153,7 @@ export default function ScanPanel() {
 
             {!cameraActive && (
               <div className="camera-frame">
-                <span>Нажми кнопку, чтобы включить камеру</span>
+                <span>Нажми «Включить камеру», чтобы начать сканирование</span>
               </div>
             )}
           </div>

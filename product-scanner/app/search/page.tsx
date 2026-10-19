@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import "./search.css";
 
@@ -26,6 +27,7 @@ type Offer = {
 };
 
 export default function SearchPage() {
+  const router = useRouter();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("Москва");
@@ -39,7 +41,7 @@ export default function SearchPage() {
         const response = await fetch("/data/product_offers.csv");
 
         if (!response.ok) {
-          throw new Error("Не удалось загрузить файл с товарами");
+          throw new Error("Каталог товаров временно недоступен.");
         }
 
         const csv = await response.text();
@@ -63,7 +65,7 @@ export default function SearchPage() {
         ));
       } catch (err) {
         console.error(err);
-        setError("Не удалось загрузить базу товаров. Проверь файл CSV.");
+        setError("Не удалось загрузить каталог товаров. Попробуй обновить страницу позже.");
       } finally {
         setLoading(false);
       }
@@ -173,7 +175,7 @@ export default function SearchPage() {
         <div className="search-empty">
           <span className="search-empty-icon">⌕</span>
           <h2>Что будем искать?</h2>
-          <p>Введи название или бренд товара.</p>
+          <p>Введи название или бренд продукта.</p>
           <div className="search-suggestions">
             {["сок яблочный", "чипсы", "йогурт", "жвачка"].map((item) => (
               <button
@@ -204,7 +206,7 @@ export default function SearchPage() {
             <div className="search-empty">
               <h2>Ничего не найдено</h2>
               <p>
-                Проверь название товара или попробуй другой город.
+                Попробуй изменить название или выбрать другой город.
               </p>
             </div>
           ) : (
@@ -234,8 +236,15 @@ export default function SearchPage() {
                           <button
                             type="button"
                             className="offer-product-link"
-                            onClick={() => setSelectedOffer(item)}
-                            aria-label={`Подробнее о товаре ${item.brand} ${item.product_name}`}
+                            onClick={() => {
+                              const barcode = item.barcode?.trim();
+                              if (barcode) {
+                                router.push(`/product?code=${encodeURIComponent(barcode)}`);
+                              } else {
+                                setSelectedOffer(item);
+                              }
+                            }}
+                            aria-label={`Открыть карточку товара ${item.brand} ${item.product_name}`}
                           >
                             {item.product_name}
                             <span aria-hidden="true"> ↗</span>
@@ -283,7 +292,7 @@ export default function SearchPage() {
                             {item.delivery_eta_min?.trim() && Number.isFinite(Number(item.delivery_eta_min)) ? ` · около ${item.delivery_eta_min} мин` : ""}
                           </span>
                         ) : (
-                          <span className="offer-delivery-unknown">Информация не указана</span>
+                          <span className="offer-delivery-unknown">Данные о доставке недоступны</span>
                         )}
                       </div>
                     </div>
@@ -312,8 +321,7 @@ export default function SearchPage() {
           )}
 
           <p className="search-disclaimer">
-            Цены и остатки — демонстрационные данные, не актуальные
-            предложения магазинов.
+            Цены и наличие могут отличаться от данных в магазинах. Состав, пищевая ценность и сведения о добавках доступны не для всех продуктов.
           </p>
         </section>
       )}
@@ -343,10 +351,10 @@ export default function SearchPage() {
               <p className="offer-detail-muted">Обычная цена: {formatPrice(selectedOffer.regular_price_rub)}</p>
             )}
             <dl className="offer-detail-list">
-              <div><dt>Магазин</dt><dd>{selectedOffer.store || "Не указан"}</dd></div>
-              <div><dt>Город</dt><dd>{selectedOffer.city || "Не указан"}</dd></div>
-              <div><dt>Адрес</dt><dd>{selectedOffer.store_address || "Не указан"}</dd></div>
-              <div><dt>Наличие</dt><dd>{selectedOffer.availability || "Статус не указан"}</dd></div>
+              <div><dt>Магазин</dt><dd>{selectedOffer.store || "Нет данных"}</dd></div>
+              <div><dt>Город</dt><dd>{selectedOffer.city || "Нет данных"}</dd></div>
+              <div><dt>Адрес</dt><dd>{selectedOffer.store_address || "Нет данных"}</dd></div>
+              <div><dt>Наличие</dt><dd>{selectedOffer.availability || "Нет данных"}</dd></div>
             </dl>
             <div className="offer-detail-delivery">
               <h3>Доставка</h3>
@@ -355,16 +363,15 @@ export default function SearchPage() {
                   <p><strong>{selectedOffer.delivery_service}</strong> — {formatPrice(selectedOffer.delivery_fee_rub)}</p>
                   {selectedOffer.delivery_minimum_rub?.trim() && Number.isFinite(Number(selectedOffer.delivery_minimum_rub)) && <p>Минимальный заказ: {formatPrice(selectedOffer.delivery_minimum_rub)}</p>}
                   {selectedOffer.delivery_eta_min?.trim() && Number.isFinite(Number(selectedOffer.delivery_eta_min)) && <p>Ориентировочное время: {selectedOffer.delivery_eta_min} мин</p>}
-                  {selectedOffer.delivery_available?.trim() && <p>Доступность: {selectedOffer.delivery_available}</p>}
                 </>
-              ) : <p className="offer-delivery-unknown">Данные о доставке для этого предложения не указаны.</p>}
+              ) : <p className="offer-delivery-unknown">Информация о доставке для этого предложения недоступна.</p>}
             </div>
             {selectedOffer.barcode?.trim() && (
               <a className="offer-detail-product-link" href={`/product?code=${encodeURIComponent(selectedOffer.barcode.trim())}`}>
-                Открыть полную карточку продукта
+                Состав и пищевая ценность
               </a>
             )}
-            <p className="offer-detail-footnote">Состав и пищевая ценность не хранятся в этой записи базы цен. Если есть штрихкод, полная карточка загружается из Open Food Facts.</p>
+            {!selectedOffer.barcode?.trim() && <p className="offer-detail-footnote">Состав и пищевая ценность для этого продукта недоступны.</p>}
           </section>
         </div>
       )}

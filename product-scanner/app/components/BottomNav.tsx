@@ -2,6 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import BarcodeIcon from "./BarcodeIcon";
 
 const items = [
   { label: "История", href: "/history", symbol: "↺" },
@@ -29,7 +30,13 @@ export default function BottomNav() {
             }`}
             aria-current={active ? "page" : undefined}
           >
-            <span className="nav-icon">{item.symbol}</span>
+            <span className="nav-icon">
+              {item.href === "/scan" ? (
+                <BarcodeIcon size={24} />
+              ) : (
+                item.symbol
+              )}
+            </span>
             <span>{item.label}</span>
           </a>
         );

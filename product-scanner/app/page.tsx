@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import BarcodeIcon from "./components/BarcodeIcon";
 export default function HomePage() {
   return (
     <main className="container home-page">
@@ -15,7 +15,9 @@ export default function HomePage() {
         </p>
         <div className="home-actions">
           <Link className="button home-primary-action" href="/scan">
-            <span aria-hidden="true">▦</span> Сканировать товар
+            <span className="scan-icon" aria-hidden="true">
+  <BarcodeIcon size={40} />
+</span> Сканировать товар
           </Link>
           <Link className="button button-secondary home-secondary-action" href="/search">
             Сравнить цены <span aria-hidden="true">→</span>

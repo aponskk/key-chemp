@@ -285,7 +285,7 @@ export default function StoreOffers({
       (position) => {
         setUserPosition({ latitude: position.coords.latitude, longitude: position.coords.longitude });
         setLocationLoading(false);
-        setLocationMessage("Расстояние рассчитано по координатам. Точки в базе могут быть тестовыми.");
+        setLocationMessage("Расстояние рассчитано по указанным координатам магазинов.");
       },
       () => {
         setLocationLoading(false);
@@ -299,11 +299,11 @@ export default function StoreOffers({
     setRadiusMode(mode);
     setShowAll(true);
     if (mode === "all") {
-      setLocationMessage("Показываем все предложения из базы, независимо от расстояния.");
+      setLocationMessage("Показаны все найденные предложения независимо от расстояния.");
       return;
     }
     if (userPosition) {
-      setLocationMessage(`Показываем магазины в радиусе ${mode} км от вашего местоположения.`);
+      setLocationMessage(`Показываем магазины в радиусе ${mode} км от твоего местоположения.`);
       return;
     }
     requestLocation();
@@ -311,7 +311,7 @@ export default function StoreOffers({
 
   const deliveryRows = useMemo(() => shownOffers
     .filter((offer) => offer.delivery_service?.trim() && offer.delivery_fee_rub?.trim() !== "" && Number.isFinite(Number(offer.delivery_fee_rub)))
-    .map((offer) => ({ service: offer.delivery_service as string, fee: Number(offer.delivery_fee_rub), productPrice: Number(offer.current_price_rub), total: Number(offer.current_price_rub) + Number(offer.delivery_fee_rub), minimum: offer.delivery_minimum_rub?.trim() && Number.isFinite(Number(offer.delivery_minimum_rub)) ? Number(offer.delivery_minimum_rub) : null, source: "База приложения" })), [shownOffers]);
+    .map((offer) => ({ service: offer.delivery_service as string, fee: Number(offer.delivery_fee_rub), productPrice: Number(offer.current_price_rub), total: Number(offer.current_price_rub) + Number(offer.delivery_fee_rub), minimum: offer.delivery_minimum_rub?.trim() && Number.isFinite(Number(offer.delivery_minimum_rub)) ? Number(offer.delivery_minimum_rub) : null })), [shownOffers]);
 
   function formatPrice(value: string) {
     return `${Number(value).toLocaleString("ru-RU", {
@@ -335,7 +335,7 @@ export default function StoreOffers({
           </div>
           {radiusMode !== "all" && !userPosition && (
             <button className="store-toggle" type="button" onClick={requestLocation} disabled={locationLoading}>
-              {locationLoading ? "Определяем…" : "Повторить геолокацию"}
+              {locationLoading ? "Определяем…" : "Определить местоположение"}
             </button>
           )}
           {radiusMode === "all" && !loading && shownOffers.length > 1 && (
@@ -349,38 +349,35 @@ export default function StoreOffers({
 
       {loading && (
         <p className="store-offers-message">
-          Ищем предложения в тестовой базе...
+          Загружаем цены...
         </p>
       )}
 
       {!loading && error && (
         <p className="store-offers-message store-offers-error">
-          Не удалось загрузить базу предложений. Проверь файл CSV.
+          Не удалось загрузить цены. Попробуй позже.
         </p>
       )}
 
       {!loading && !error && matchedOffers.length === 0 && (
         <div className="store-offers-empty">
           <span className="store-empty-icon">⌕</span>
-          <strong>Информация о ценах не найдена</strong>
-          <p>
-            Товар может быть в каталоге продуктов, но пока отсутствовать
-            в нашей тестовой базе магазинов.
-          </p>
+          <strong>Цены для этого продукта не найдены</strong>
+          <p>Нет доступных предложений магазинов для этого продукта.</p>
         </div>
       )}
 
       {!loading && !error && radiusMode !== "all" && !userPosition && (
         <div className="store-offers-empty">
-          <strong>Нужно разрешить геолокацию</strong>
-          <p>Чтобы отфильтровать магазины в радиусе {radiusMode} км, разреши доступ к местоположению в браузере. Либо выбери «Все магазины».</p>
+          <strong>Местоположение недоступно</strong>
+          <p>Разреши доступ к местоположению или выбери «Все магазины».</p>
         </div>
       )}
 
       {!loading && !error && radiusMode !== "all" && userPosition && nearbyOffers.length === 0 && (
         <div className="store-offers-empty">
           <strong>В радиусе {radiusMode} км предложений не найдено</strong>
-          <p>Проверь координаты магазинов в CSV. Если точки искусственные и расположены в Москве, а ты находишься далеко от Москвы, они не попадут в этот радиус.</p>
+          <p>Попробуй увеличить радиус поиска или посмотреть все магазины.</p>
         </div>
       )}
 
@@ -453,7 +450,7 @@ export default function StoreOffers({
           </div>
 
           <p className="store-offers-disclaimer">
-            Цены и наличие берутся из локального CSV-файла приложения. Если база тестовая или устарела, данные могут не совпадать с ценами магазинов в реальном времени.
+            Цены и наличие могут отличаться от фактических данных в магазинах.
           </p>
         </>
       )}
@@ -462,7 +459,7 @@ export default function StoreOffers({
         <div>
           <p className="store-offers-eyebrow">ДОСТАВКА</p>
           <h3>Сколько стоит привезти?</h3>
-          <p className="delivery-note">Показываем тарифы, указанные в базе приложения. Они могут быть неактуальны, если база давно не обновлялась.</p>
+          <p className="delivery-note">Стоимость и условия доставки могут отличаться у разных магазинов.</p>
         </div>
         {deliveryRows.length ? (
           <div className="delivery-options">
@@ -473,12 +470,11 @@ export default function StoreOffers({
                 <small>Товар: {formatPrice(String(row.productPrice))}</small>
                 <small>Итого: {formatPrice(String(row.total))}</small>
                 {row.minimum !== null && <small>Минимальный заказ: {formatPrice(String(row.minimum))}</small>}
-                <small>{row.source}</small>
               </div>
             ))}
           </div>
         ) : (
-          <p className="delivery-note">Информация о доставке для этого товара пока не указана в базе.</p>
+          <p className="delivery-note">Информация о доставке для этого продукта не найдена.</p>
         )}
       </section>
     </section>

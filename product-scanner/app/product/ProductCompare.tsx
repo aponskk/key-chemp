@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import StoreOffers from "./StoreOffers";
 import { normalizeProductCode } from "../lib/productCode";
+import BarcodeIcon from "../components/BarcodeIcon";
 
 type Nutriments = Record<string, number | string | undefined>;
 type CompareProduct = {
@@ -57,12 +58,12 @@ export default function ProductCompare({ current }: Props) {
   async function compareCode(rawCode: string) {
     const normalized = normalizeProductCode(rawCode.replace(/\s+/g, ""));
     if (!normalized) {
-      setError("Не удалось распознать штрихкод. Используй EAN/UPC на упаковке или введи код вручную.");
+      setError("Не удалось распознать штрихкод. Проверь код на упаковке или введи его вручную.");
       setOther(null);
       return;
     }
     if (normalized === current.code) {
-      setError("Это уже открытый товар. Отсканируй или введи другой штрихкод.");
+      setError("Это тот же продукт. Введи штрихкод другого продукта.");
       setOther(null);
       return;
     }
@@ -76,11 +77,11 @@ export default function ProductCompare({ current }: Props) {
       const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(normalized)}?fields=${fields}`);
       if (!response.ok) throw new Error("Не удалось получить данные второго товара.");
       const data = await response.json();
-      if (data.status !== 1 || !data.product) throw new Error("Второй товар не найден в Open Food Facts.");
+      if (data.status !== 1 || !data.product) throw new Error("Не удалось найти второй продукт по этому штрихкоду.");
       const p = data.product;
       setOther({
         code: p.code || normalized,
-        name: p.product_name?.trim() || p.generic_name?.trim() || "Название не указано",
+        name: p.product_name?.trim() || p.generic_name?.trim() || "Название неизвестно",
         brand: p.brands?.trim() || "",
         quantity: p.quantity?.trim() || "",
         ingredients: p.ingredients_text_ru?.trim() || p.ingredients_text?.trim() || "",
@@ -109,7 +110,7 @@ export default function ProductCompare({ current }: Props) {
         const raw = result.getText();
         const normalized = normalizeProductCode(raw);
         if (!normalized) {
-          setError("Код считан, но это не поддерживаемый штрихкод товара. Попробуй EAN/UPC на упаковке.");
+          setError("Этот код не подходит для поиска продукта. Используй штрихкод с упаковки.");
           return;
         }
         processedRef.current = true;
@@ -124,7 +125,7 @@ export default function ProductCompare({ current }: Props) {
         return;
       }
       controlsRef.current = controls;
-      setCameraStatus("Наведи камеру на штрихкод второго товара");
+      setCameraStatus("Наведи камеру на штрихкод второго продукта");
     } catch (e) {
       if (!mountedRef.current) return;
       setCameraActive(false);
@@ -134,7 +135,7 @@ export default function ProductCompare({ current }: Props) {
       } else if (e instanceof Error && e.name === "NotFoundError") {
         setError("Камера не найдена на этом устройстве.");
       } else {
-        setError("Не удалось запустить камеру. Проверь разрешения браузера и попробуй ещё раз.");
+        setError("Не удалось включить камеру. Проверь разрешение на доступ к камере и попробуй ещё раз.");
       }
     }
   }
@@ -147,7 +148,7 @@ export default function ProductCompare({ current }: Props) {
   return (
     <section className="product-section product-compare-section">
       <h2>Сравнить с другим товаром</h2>
-      <p className="product-section-hint">Введи штрихкод второго продукта или отсканируй его камерой. Состав и пищевая ценность загружаются из Open Food Facts; цена — из локальной базы приложения, если товар там есть.</p>
+      <p className="product-section-hint">Введи штрихкод второго продукта или отсканируй его. Сравнение состава и пищевой ценности доступно, если данные о продукте есть в каталоге.</p>
       <form className="compare-form" onSubmit={handleSubmit}>
         <input aria-label="Штрихкод второго товара" value={code} onChange={(e) => setCode(e.target.value)} placeholder="Например, 5449000000996" inputMode="numeric" />
         <button className="primary-button" type="submit" disabled={loading}>{loading ? "Загружаем…" : "Сравнить"}</button>
@@ -156,7 +157,9 @@ export default function ProductCompare({ current }: Props) {
         {cameraActive ? (
           <button className="secondary-button" type="button" onClick={stopCamera}>Остановить камеру</button>
         ) : (
-          <button className="secondary-button" type="button" onClick={startCamera} disabled={loading}> <span aria-hidden="true">▦</span> Сканировать камерой</button>
+          <button className="secondary-button" type="button" onClick={startCamera} disabled={loading}> <span className="scan-icon">
+  <BarcodeIcon size={40} />
+</span> Сканировать камерой</button>
         )}
       </div>
       <div className="compare-camera-box" hidden={!cameraActive}>
@@ -173,8 +176,8 @@ export default function ProductCompare({ current }: Props) {
                 <h3>{p.name}</h3>
                 {p.brand && <p>{p.brand}</p>}
                 {p.quantity && <p>{p.quantity}</p>}
-                <p className="compare-ingredients"><strong>Состав:</strong> {p.ingredients || "Нет данных в базе"}</p>
-                <p className="compare-ingredients"><strong>Аллергены:</strong> {p.allergens || "Нет данных; это не означает, что аллергенов нет."}</p>
+                <p className="compare-ingredients"><strong>Состав:</strong> {p.ingredients || "Нет данных"}</p>
+                <p className="compare-ingredients"><strong>Аллергены:</strong> {p.allergens || "Нет данных. Проверь информацию на упаковке."}</p>
               </article>
             ))}
           </div>
