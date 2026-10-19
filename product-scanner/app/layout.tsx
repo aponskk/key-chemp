@@ -17,7 +17,7 @@ export default function RootLayout({
           </Link>
         </header>
 
-        <main>{children}</main>
+        <div className="app-content">{children}</div>
 
         <BottomNav />
       </body>

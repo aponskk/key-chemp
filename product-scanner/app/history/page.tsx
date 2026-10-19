@@ -81,38 +81,28 @@ export default function HistoryPage() {
               href={`/product?code=${encodeURIComponent(item.code)}`}
               key={item.code}
             >
-              {item.image ? (
-                <img
-                  className="history-item-image"
-                  src={item.image}
-                  alt=""
-                />
-              ) : (
-                <div className="history-item-image history-item-image-empty">
-                  ▦
-                </div>
-              )}
-
               <div className="history-item-content">
                 <h2>{item.name}</h2>
 
-                {item.brand && (
-                  <p className="history-item-brand">{item.brand}</p>
-                )}
+                <div className="history-item-meta">
+                  {item.brand && (
+                    <span className="history-item-brand">{item.brand}</span>
+                  )}
 
-                {item.quantity && (
-                  <p className="history-item-quantity">
-                    {item.quantity}
-                  </p>
-                )}
+                  {item.quantity && (
+                    <span className="history-item-quantity">
+                      {item.quantity}
+                    </span>
+                  )}
+                </div>
 
                 <p className="history-item-date">
-                  {formatDate(item.scannedAt)}
+                  Просмотрен {formatDate(item.scannedAt)}
                 </p>
               </div>
 
               <span className="history-item-arrow" aria-hidden="true">
-                →
+                ↗
               </span>
             </Link>
           ))}

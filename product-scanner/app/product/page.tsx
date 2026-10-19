@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { saveProductToHistory } from "../lib/productHistory";
 import StoreOffers from "./StoreOffers";
+import ProductCompare from "./ProductCompare";
 
 type Nutriments = Record<string, number | string | undefined>;
 
@@ -17,6 +18,7 @@ type Product = {
   image: string;
   ingredients: string;
   allergens: string;
+  additivesTags: string[];
   servingSize: string;
   nutriments: Nutriments;
 };
@@ -35,6 +37,7 @@ type ApiResponse = {
     ingredients_text?: string;
     ingredients_text_ru?: string;
     allergens?: string;
+    additives_tags?: string[];
     serving_size?: string;
     nutriments?: Nutriments;
   };
@@ -59,6 +62,29 @@ function formatNutrient(
   return number.toLocaleString("ru-RU", {
     maximumFractionDigits: 2,
   });
+}
+
+const ADDITIVE_NOTES: Record<string, { title: string; note: string }> = {
+  "e102": { title: "Тартразин (E102)", note: "Синтетический краситель. В ЕС для некоторых красителей предусмотрено предупреждение о возможном влиянии на активность и внимание детей; наличие кода само по себе не говорит о превышении нормы." },
+  "e104": { title: "Жёлтый хинолиновый (E104)", note: "Краситель. Учитывай индивидуальную чувствительность и проверяй актуальные правила маркировки в своей стране." },
+  "e110": { title: "Жёлтый «солнечный закат» (E110)", note: "Краситель; для ряда азокрасителей в ЕС предусмотрено специальное предупреждение на маркировке." },
+  "e122": { title: "Азорубин (E122)", note: "Краситель; наличие в составе не означает автоматически, что продукт опасен или что допустимая концентрация превышена." },
+  "e124": { title: "Понсо 4R (E124)", note: "Краситель; оценивай весь состав и маркировку продукта, а не один код отдельно." },
+  "e129": { title: "Красный очаровательный AC (E129)", note: "Краситель; для некоторых синтетических красителей в ЕС требуется предупреждение на упаковке." },
+  "e250": { title: "Нитрит натрия (E250)", note: "Консервант, встречается в мясных изделиях. Важны количество, частота употребления и общий рацион; по одной строке состава дозу определить нельзя." },
+  "e320": { title: "Бутилгидроксианизол (E320)", note: "Антиоксидант. По открытой записи состава нельзя определить концентрацию, поэтому это повод проверить маркировку, а не самостоятельный диагноз безопасности." },
+  "e321": { title: "Бутилгидрокситолуол (E321)", note: "Антиоксидант. Концентрация обычно не указана в потребительской базе; сам код не доказывает превышения нормы." },
+  "e621": { title: "Глутамат натрия (E621)", note: "Усилитель вкуса. Не считается автоматически вредным при разрешённом применении, но некоторым людям стоит учитывать индивидуальную реакцию и общее количество солёных/ультрапереработанных продуктов." },
+  "e951": { title: "Аспартам (E951)", note: "Подсластитель. Людям с фенилкетонурией необходимо учитывать источник фенилаланина и предупреждение на упаковке." },
+};
+
+function getAdditiveFindings(ingredients: string, tags: string[]) {
+  const source = `${ingredients} ${tags.join(" ")}`.toLowerCase();
+  const codes = new Set((source.match(/e\s?-?\d{3,4}[a-z]?/gi) || []).map((value) => value.replace(/[^a-z0-9]/gi, "").toLowerCase()));
+  return Array.from(codes).map((code) => ({
+    code: code.toUpperCase(),
+    ...(ADDITIVE_NOTES[code] || { title: code.toUpperCase(), note: "Добавка упомянута в данных состава. Автоматическая оценка не определяет дозировку или индивидуальный риск." }),
+  }));
 }
 
 function ProductContent() {
@@ -98,6 +124,7 @@ function ProductContent() {
           "ingredients_text",
           "ingredients_text_ru",
           "allergens",
+          "additives_tags",
           "serving_size",
           "nutriments",
         ].join(",");
@@ -140,6 +167,7 @@ function ProductContent() {
             source.ingredients_text?.trim() ||
             "",
           allergens: source.allergens?.trim() || "",
+          additivesTags: Array.isArray(source.additives_tags) ? source.additives_tags : [],
           servingSize: source.serving_size?.trim() || "",
           nutriments: source.nutriments || {},
         };
@@ -302,23 +330,6 @@ function ProductContent() {
           </div>
         </section>
 
-        <section className="product-rating">
-          <div>
-            <p className="product-label">ОЦЕНКА КАЧЕСТВА</p>
-            <p className="product-rating-caption">
-              Предварительная оценка
-            </p>
-          </div>
-
-          <div className="product-rating-score">
-            <strong>9.0</strong>
-            <span>/ 10</span>
-          </div>
-
-          <p className="product-rating-note">
-            Демонстрационная оценка. Анализ состава пока не реализован.
-          </p>
-        </section>
           <StoreOffers
             code={product.code}
             brand={product.brand ?? ""}
@@ -358,12 +369,42 @@ function ProductContent() {
           )}
         </section>
 
-        {product.allergens && (
-          <section className="product-section">
-            <h2>Аллергены</h2>
-            <p className="product-ingredients">{product.allergens}</p>
-          </section>
-        )}
+        <section className="product-section product-allergens">
+          <h2>Аллергены</h2>
+          {product.allergens ? (
+            <>
+              <p className="product-ingredients">{product.allergens}</p>
+              <p className="product-section-hint">Данные из Open Food Facts. Сверяй информацию с упаковкой: рецептура может меняться.</p>
+            </>
+          ) : (
+            <p className="product-no-data">Информация об аллергенах отсутствует в базе. Это не означает, что продукт не содержит аллергенов.</p>
+          )}
+        </section>
+
+        <section className="product-section product-additives">
+          <h2>Добавки, на которые стоит обратить внимание</h2>
+          {(() => {
+            const findings = getAdditiveFindings(product.ingredients, product.additivesTags);
+            if (!product.ingredients && product.additivesTags.length === 0) {
+              return <p className="product-no-data">В базе нет состава или списка добавок. Нельзя сделать вывод, что добавок нет.</p>;
+            }
+            if (findings.length === 0) {
+              return <p className="product-no-data">В доступном тексте не распознаны коды пищевых добавок E. Это не является подтверждением отсутствия всех добавок.</p>;
+            }
+            return <div className="additive-list">{findings.map((item) => <article className="additive-item" key={item.code}><strong>{item.title}</strong><p>{item.note}</p></article>)}</div>;
+          })()}
+          <p className="product-section-hint">Это справочная подсветка по тексту состава, а не медицинская оценка: база может быть неполной, а концентрации добавок здесь не указаны.</p>
+        </section>
+
+        <ProductCompare current={{
+          code: product.code,
+          name: product.name,
+          brand: product.brand,
+          quantity: product.quantity,
+          ingredients: product.ingredients,
+          allergens: product.allergens,
+          nutriments: product.nutriments,
+        }} />
 
         {product.categories && (
           <section className="product-section">
